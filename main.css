@@ -1,0 +1,10 @@
+.lp-preview{
+	width: 100%;
+	height: auto;
+	border: 1px solid #eee;
+	margin: 10px 0;
+}
+
+.lp-preview.msg{
+	padding: 10px;
+}

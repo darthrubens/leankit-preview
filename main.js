@@ -1,7 +1,23 @@
 $(document).ready( function(){
 
-	var path = 'https://dny.leankit.com/API/Card/DownloadAttachment/152735796/166532816';
-	requestBinaryImage(path, viewImageAsPopup);
+	console.log('Leankit preview active.');
+
+	$(document).on( "click" , "#kb-card-attachment-items a" , function(e){
+		var $link = $(this);
+		var loading = '<div class="lp-preview msg">loading preview...</div>';
+		$link.parent().parent().append(loading);
+
+		var href = $(this).attr('href');
+		var filename = $(this).html();
+		var parts = filename.split('.');
+		var extension = parts[parts.length - 1];
+
+		if(href.indexOf('DownloadAttachment') != -1 &&
+			(extension == 'png' || extension == 'gif' || extension == 'jpg')){
+			e.preventDefault();
+			requestBinaryImage(href, extension, $link, showImagePreview);
+		}
+	});
 	
 });
 
@@ -47,17 +63,20 @@ function base64ArrayBuffer(arrayBuffer) {
 	return base64;
 }
 
-function requestBinaryImage(path, callback){}
+function requestBinaryImage(path, extension, $link, callback){
 	var xhr = new XMLHttpRequest();
 	xhr.open('GET', path, true);
 	xhr.responseType = 'arraybuffer';
 	xhr.onload = function(e) {
 		var base64Image = base64ArrayBuffer(e.currentTarget.response);
-		callback(base64Image);
+		callback(base64Image, extension, $link);
 	};
 	xhr.send();
 }
 
-function viewImageAsPopup(base64Image){
-	$('html').append('<img src="data:image/png;base64,' + base64Image + '">');
+function showImagePreview(base64Image, extension, $link){
+	var img = '<img class="lp-preview" src="data:image/' + extension + ';base64,' + base64Image + '">';
+	$link.parent().parent().find('.lp-preview').remove();
+	$link.parent().parent().append(img);
 }
+
